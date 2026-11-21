@@ -393,11 +393,28 @@ export class Game {
     });
   }
 
+  /** 家门口（朝向屏幕前方）的一处空地，避免虫虫站在建筑里 */
   private homeSpot(home: PlacedBuilding): { x: number; y: number } {
-    const c = centerOf(home);
-    const a = this.rng() * Math.PI * 2;
-    const r = 0.9 + this.rng() * 1.1;
-    return { x: clampGrid(c.x + 0.6 + Math.cos(a) * r), y: clampGrid(c.y + 0.6 + Math.sin(a) * r) };
+    const d = defOf(home);
+    let p = { x: home.x, y: home.y };
+    for (let i = 0; i < 8; i++) {
+      const out = 0.75 + this.rng() * 1.1;
+      const along = -0.6 + this.rng() * 2.4;
+      p = this.rng() < 0.5
+        ? { x: clampGrid(home.x + d.w - 0.5 + out), y: clampGrid(home.y - 0.5 + along * (d.h / 2 + 0.5)) }
+        : { x: clampGrid(home.x - 0.5 + along * (d.w / 2 + 0.5)), y: clampGrid(home.y + d.h - 0.5 + out) };
+      if (!this.tileOccupied(p.x, p.y)) break;
+    }
+    return p;
+  }
+
+  private tileOccupied(x: number, y: number): boolean {
+    const tx = Math.round(x);
+    const ty = Math.round(y);
+    return this.state.buildings.some((b) => {
+      const d = defOf(b);
+      return tx >= b.x && tx < b.x + d.w && ty >= b.y && ty < b.y + d.h;
+    });
   }
 
   private setWorkTarget(bug: Bug, site: PlacedBuilding): void {
