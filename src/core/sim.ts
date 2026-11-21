@@ -317,7 +317,7 @@ export class Game {
         bug.y = bug.ty;
         bug.state = 'working';
       }
-      if (bug.state !== 'working') continue;
+      if (bug.state !== 'working' || this.isPestered(b.uid)) continue;
       b.job.remaining -= sec;
       if (b.job.remaining <= 0) {
         this.finishJob(b, bug);
@@ -328,6 +328,11 @@ export class Game {
       }
     }
     for (const bug of s.bugs) {
+      if (bug.state === 'toHome') {
+        bug.x = bug.tx;
+        bug.y = bug.ty;
+        bug.state = 'idle';
+      }
       if (bug.state === 'idle') bug.energy = Math.min(100, bug.energy + IDLE_REGEN * sec);
     }
     return { seconds: sec, finished };

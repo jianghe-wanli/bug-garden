@@ -143,6 +143,39 @@ describe('成长与存档', () => {
     expect(junk.ready).not.toBeNull();
   });
 
+  it('离线时回家路上的虫虫也恢复体力，被臭虫堵住的工作不推进', () => {
+    const game = setup();
+    game.state.level = 4;
+    game.place('anthouse', 2, 2);
+    const junk = game.place('junk', 6, 3)!;
+    game.assign(junk.uid);
+    run(game, 60);
+    const worker = game.state.bugs.find((b) => b.energy < 100)!;
+    worker.state = 'toHome';
+    const energy = worker.energy;
+    game.applyOffline(120);
+    expect(worker.state).toBe('idle');
+    expect(worker.energy).toBeGreaterThan(energy);
+
+    game.collect(junk.uid);
+    const pest = game.spawnPest('stink')!;
+    run(game, 40);
+    expect(game.isPestered(junk.uid)).toBe(true);
+    for (const b of game.state.bugs) b.energy = 100;
+    for (let i = 0; i < 3; i++) game.shoo(pest.uid);
+    run(game, 30);
+    game.assign(junk.uid);
+    run(game, 10);
+    const again = game.spawnPest('stink')!;
+    again.x = again.tx;
+    again.y = again.ty;
+    run(game, 1);
+    expect(game.isPestered(junk.uid)).toBe(true);
+    const remaining = junk.job!.remaining;
+    game.applyOffline(20);
+    expect(junk.job!.remaining).toBe(remaining);
+  });
+
   it('存档读档往返一致', () => {
     const mem = new Map<string, string>();
     const storage = {
