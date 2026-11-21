@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-56 -70 112 82" width="112" height="82">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cdeffd"/><stop offset="1" stop-color="#eaf8d8"/>
+  </linearGradient><linearGradient id="antBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f08a4b"/><stop offset="1" stop-color="#c9532a"/>
+  </linearGradient><linearGradient id="beeBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffdc5e"/><stop offset="1" stop-color="#f5a623"/>
+  </linearGradient><linearGradient id="bugBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#a6cf5a"/><stop offset="1" stop-color="#5f9a3a"/>
+  </linearGradient><linearGradient id="hive" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#ffd978"/><stop offset=".6" stop-color="#f4b23f"/><stop offset="1" stop-color="#d98a22"/>
+  </linearGradient><linearGradient id="nut" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#f6d9a4"/><stop offset=".65" stop-color="#e3b672"/><stop offset="1" stop-color="#c48f4c"/>
+  </linearGradient><linearGradient id="cap" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#a8703f"/><stop offset="1" stop-color="#6f4423"/>
+  </linearGradient><radialGradient id="glow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#fff6b0"/><stop offset="1" stop-color="#ffc24a"/>
+  </radialGradient></defs>
+<g stroke="#5a3118" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="0" cy="-8" rx="50" ry="16" fill="#b98a5a"/>
+    <g transform="translate(-22 -28) rotate(-14)"><ellipse cx="0" cy="0" rx="26" ry="22" fill="#5aa9e6"/><ellipse cx="0" cy="0" rx="17" ry="14" fill="#7fc0f2" stroke-width="2"/>
+      <g fill="#5a3118" stroke="none"><circle cx="-5" cy="-4" r="2.6"/><circle cx="5" cy="-4" r="2.6"/><circle cx="-5" cy="5" r="2.6"/><circle cx="5" cy="5" r="2.6"/></g></g>
+    <g transform="translate(24 -22)"><path d="M-22 0 q0 -14 22 -14 q22 0 22 14 l-4 6 l-5 -4 l-4 6 l-5 -4 l-4 6 l-4 -6 l-5 4 l-4 -6 l-5 4z" fill="#ef5b5b"/><ellipse cx="0" cy="-4" rx="14" ry="6" fill="#ff8a8a" stroke-width="2"/></g>
+    <g transform="translate(-4 -40) rotate(24)"><rect x="-34" y="-3.5" width="62" height="7" rx="3" fill="#f3d9a5"/><ellipse cx="30" cy="0" rx="8" ry="6.5" fill="#d9483b"/></g></g>
+</svg>
