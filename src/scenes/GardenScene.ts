@@ -218,7 +218,10 @@ export class GardenScene extends Phaser.Scene {
     // 金币画在所有建筑之上，所以先判金币
     for (const b of list) {
       const v = this.buildings.get(b.uid);
-      if (v && b.ready && v.coin.getBounds().contains(wx, wy)) return b;
+      if (!v || !b.ready) continue;
+      // 金币是圆的，按圆形判定，避免透明的四角抢走后面建筑的点击
+      const c = v.coin.getBounds();
+      if (Phaser.Math.Distance.Between(wx, wy, c.centerX, c.centerY) <= Math.max(c.width, c.height) / 2) return b;
     }
     for (const b of list) {
       const v = this.buildings.get(b.uid);
