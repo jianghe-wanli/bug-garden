@@ -215,9 +215,14 @@ export class GardenScene extends Phaser.Scene {
 
   private pickBuilding(wx: number, wy: number): PlacedBuilding | null {
     const list = [...this.app.game.state.buildings].sort((a, z) => this.depthOf(z) - this.depthOf(a));
+    // 金币画在所有建筑之上，所以先判金币
     for (const b of list) {
       const v = this.buildings.get(b.uid);
-      if (v && (v.img.getBounds().contains(wx, wy) || (b.ready && v.coin.getBounds().contains(wx, wy)))) return b;
+      if (v && b.ready && v.coin.getBounds().contains(wx, wy)) return b;
+    }
+    for (const b of list) {
+      const v = this.buildings.get(b.uid);
+      if (v && v.img.getBounds().contains(wx, wy)) return b;
     }
     const g = worldToGrid(wx, wy);
     const tx = Math.round(g.x);
