@@ -21,18 +21,19 @@ export function newGame(): GameState {
   };
 }
 
-export function saveGame(state: GameState, storage: Storage = localStorage): void {
+export function saveGame(state: GameState, storage?: Storage): void {
   state.lastSeen = Date.now();
   try {
-    storage.setItem(SAVE_KEY, JSON.stringify(state));
+    (storage ?? localStorage).setItem(SAVE_KEY, JSON.stringify(state));
   } catch {
     // 存储已满或被禁用时忽略
   }
 }
 
-export function loadGame(storage: Storage = localStorage): GameState | null {
+export function loadGame(storage?: Storage): GameState | null {
+  // 隐私模式下访问 localStorage 本身就可能抛错，所以放在 try 里取
   try {
-    const raw = storage.getItem(SAVE_KEY);
+    const raw = (storage ?? localStorage).getItem(SAVE_KEY);
     if (!raw) return null;
     const s = JSON.parse(raw) as GameState;
     if (s?.version !== 1 || !Array.isArray(s.buildings) || !Array.isArray(s.bugs)) return null;
@@ -42,6 +43,10 @@ export function loadGame(storage: Storage = localStorage): GameState | null {
   }
 }
 
-export function clearSave(storage: Storage = localStorage): void {
-  storage.removeItem(SAVE_KEY);
+export function clearSave(storage?: Storage): void {
+  try {
+    (storage ?? localStorage).removeItem(SAVE_KEY);
+  } catch {
+    // 存储被禁用时没有存档可清
+  }
 }
