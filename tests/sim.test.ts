@@ -98,6 +98,33 @@ describe('害虫', () => {
   });
 });
 
+describe('蚁狮', () => {
+  it('在蚂蚁附近挖坑并困住蚂蚁，赶走后蚂蚁脱困', () => {
+    const game = setup();
+    game.state.level = 4;
+    game.place('anthouse', 4, 4);
+    game.place('junk', 7, 5);
+    const lion = game.spawnPest('antlion')!;
+    expect(lion).not.toBeNull();
+    const home = game.state.buildings[0];
+    expect(Math.hypot(lion.x - (home.x + 0.5), lion.y - (home.y + 0.5))).toBeLessThan(6);
+    for (const b of game.state.bugs) {
+      b.x = b.tx = lion.x + 0.3;
+      b.y = b.ty = lion.y;
+      b.wait = 1e9;
+    }
+    run(game, 8);
+    const trapped = game.state.bugs.filter((b) => b.state === 'trapped');
+    expect(trapped.length).toBeGreaterThan(0);
+    const energy = trapped[0].energy;
+    run(game, 2);
+    expect(trapped[0].energy).toBeLessThan(energy);
+    for (let i = 0; i < 5; i++) game.shoo(lion.uid);
+    expect(game.state.pests).toHaveLength(0);
+    expect(game.state.bugs.some((b) => b.state === 'trapped')).toBe(false);
+  });
+});
+
 describe('成长与存档', () => {
   it('经验够了会升级', () => {
     const game = setup();

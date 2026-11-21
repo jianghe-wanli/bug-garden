@@ -545,7 +545,11 @@ export class Game {
       const free: { x: number; y: number }[] = [];
       for (let x = 0; x < GRID; x++) for (let y = 0; y < GRID; y++) if (this.canPlace('pebble', x, y)) free.push({ x, y });
       if (free.length === 0) return null;
-      const t = free[Math.floor(this.rng() * free.length)];
+      // 蚁狮优先在蚂蚁常走的地方（蚁窝和蚂蚁工作点附近）挖坑
+      const hot = s.buildings.filter((b) => (defOf(b).home ?? defOf(b).work)?.bug === 'ant').map(centerOf);
+      const near = free.filter((f) => hot.some((h) => dist(f.x, f.y, h.x, h.y) <= 2.6));
+      const pool = near.length > 0 ? near : free;
+      const t = pool[Math.floor(this.rng() * pool.length)];
       p.x = p.tx = t.x;
       p.y = p.ty = t.y;
       p.state = 'pester';
