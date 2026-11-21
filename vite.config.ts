@@ -3,8 +3,9 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   base: './',
-  server: { host: true, allowedHosts: true },
-  preview: { host: true, allowedHosts: true },
+  // 只额外放行 Devin 预览域名，其余主机名仍由 Vite 校验
+  server: { host: true, allowedHosts: ['.devinapps.com'] },
+  preview: { host: true, allowedHosts: ['.devinapps.com'] },
   // Phaser 的加载器不能解析 Vite 内联的非 base64 SVG data URI
   build: { chunkSizeWarningLimit: 1600, assetsInlineLimit: 0 },
   plugins: [
