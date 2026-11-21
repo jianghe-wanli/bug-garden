@@ -25,6 +25,9 @@ export class App {
   placing: Placing | null = null;
   offline: { seconds: number; finished: number } | null = null;
   private uiListeners: Listener[] = [];
+  private resetting = false;
+  private hiddenAt: number | null = null;
+
   /** 由场景注入：开始摆放时挑一个初始位置 */
   pickStartTile: (defId: string, moveUid: number | null) => { x: number; y: number } = () => ({ x: 0, y: 0 });
 
@@ -37,10 +40,20 @@ export class App {
       if (e.type === 'sfx') sfx.play(e.name);
       if (e.type === 'changed') this.refresh();
     });
-    setInterval(() => this.save(), 5000);
+    // 页面在后台时画面不推进，此时不能刷新存档时间，否则会吃掉离线时长
+    setInterval(() => {
+      if (!document.hidden) this.save();
+    }, 5000);
     addEventListener('pagehide', () => this.save());
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden) this.save();
+      if (document.hidden) {
+        this.save();
+        this.hiddenAt = Date.now();
+      } else if (this.hiddenAt != null) {
+        this.game.applyOffline((Date.now() - this.hiddenAt) / 1000);
+        this.hiddenAt = null;
+        this.refresh();
+      }
     });
   }
 
@@ -53,6 +66,7 @@ export class App {
   }
 
   save(): void {
+    if (this.resetting || this.hiddenAt != null) return;
     saveGame(this.game.state);
   }
 
@@ -98,6 +112,7 @@ export class App {
   }
 
   resetGame(): void {
+    this.resetting = true;
     clearSave();
     location.reload();
   }
