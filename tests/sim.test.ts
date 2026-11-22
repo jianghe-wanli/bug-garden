@@ -196,16 +196,44 @@ describe('成长与存档', () => {
     expect(loaded.quest).toEqual({ index: 0, base: 0 });
   });
 
-  it('把钱花光又没有收入来源时给保底，不会卡死', () => {
+  it('反复建了又收、乱买食物都不会把花园带进死局', () => {
     const game = setup();
     const need = BUILDING_BY_ID.anthouse.cost + BUILDING_BY_ID.junk.cost;
-    for (let i = 0; i < 40 && game.state.coins >= need; i++) {
-      const b = game.place('anthouse', 2, 2)!;
+    for (let i = 0; i < 40; i++) {
+      const b = game.place('anthouse', 2, 2) ?? game.state.buildings[0];
       game.remove(b.uid);
+      game.buyFood('sugar');
     }
-    expect(game.state.coins).toBeGreaterThanOrEqual(need);
-    expect(game.place('anthouse', 2, 2)).not.toBeNull();
+    const homes = game.state.buildings.length;
+    expect(game.state.coins).toBeGreaterThanOrEqual(homes ? BUILDING_BY_ID.junk.cost : need);
+    if (!homes) expect(game.place('anthouse', 2, 2)).not.toBeNull();
     expect(game.place('junk', 6, 3)).not.toBeNull();
+    // 有了收入来源之后花钱不再受限
+    const coins = game.state.coins;
+    expect(game.buyFood('sugar')).toBe(true);
+    expect(game.state.coins).toBeLessThan(coins);
+  });
+
+  it('原地“移动”不算移动', () => {
+    const game = setup();
+    const b = game.place('anthouse', 2, 2)!;
+    expect(game.move(b.uid, 2, 2)).toBe(true);
+    expect(game.state.stats.move ?? 0).toBe(0);
+    expect(game.move(b.uid, 5, 5)).toBe(true);
+    expect(game.state.stats.move).toBe(1);
+  });
+
+  it('旧存档读档后先结掉已达成的任务，第一次派工才算数', () => {
+    const game = setup();
+    game.place('anthouse', 2, 2);
+    game.place('junk', 6, 3);
+    game.state.quest = { index: 0, base: 0 };
+    game.syncQuests();
+    const q = game.currentQuest()!;
+    expect(q.goal).toMatchObject({ kind: 'stat', stat: 'assign' });
+    const site = game.state.buildings.find((b) => b.def === 'junk')!;
+    game.assign(site.uid);
+    expect(game.currentQuest()!.id).not.toBe(q.id);
   });
 
   it('花园摆满时改来臭虫', () => {

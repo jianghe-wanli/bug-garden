@@ -35,6 +35,7 @@ export class App {
   constructor() {
     const saved = loadGame();
     this.game = new Game(saved ?? newGame());
+    this.game.syncQuests();
     if (saved) this.offline = this.game.applyOffline((Date.now() - saved.lastSeen) / 1000);
     sfx.setMuted(this.game.state.settings.muted);
     this.game.bus.on((e) => {

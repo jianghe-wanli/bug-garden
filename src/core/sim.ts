@@ -16,6 +16,7 @@ const ANTLION_GRAB_EVERY = 8;
 const ANTLION_RANGE = 3;
 const MAX_OFFLINE = 8 * 3600;
 const SELL_REFUND = 0.5;
+const KEEP_COINS = '金币得留着：先把住宅和工作点盖起来';
 const HUNGRY = 20;
 
 export function defOf(b: PlacedBuilding): BuildingDef {
@@ -117,6 +118,7 @@ export class Game {
     if (!d || d.unlockLevel > this.state.level) return null;
     if (this.state.coins < d.cost) return this.fail('金币不够');
     if (!this.canPlace(defId, x, y)) return this.fail('这里放不下');
+    if (this.deadEnd(d.cost, { add: d })) return this.fail(KEEP_COINS);
     this.state.coins -= d.cost;
     const b: PlacedBuilding = { uid: this.state.nextUid++, def: defId, x, y, level: 1, job: null, ready: null };
     this.state.buildings.push(b);
@@ -133,6 +135,7 @@ export class Game {
   move(uid: number, x: number, y: number): boolean {
     const b = this.building(uid);
     if (!b) return false;
+    if (b.x === x && b.y === y) return true;
     if (!this.canPlace(b.def, x, y, uid)) return !!this.fail('这里放不下');
     b.x = x;
     b.y = y;
@@ -151,6 +154,7 @@ export class Game {
     const b = this.building(uid);
     if (!b) return false;
     const d = defOf(b);
+    if (this.deadEnd(-Math.floor(d.cost * SELL_REFUND), { without: b })) return !!this.fail('收起它就没钱重新开张了');
     if (b.job) this.releaseBug(this.bug(b.job.bugUid));
     if (d.home) {
       for (const bug of this.state.bugs.filter((g) => g.homeUid === uid)) {
@@ -173,6 +177,7 @@ export class Game {
     const cost = this.upgradeCost(b);
     if (cost == null) return false;
     if (this.state.coins < cost) return !!this.fail('金币不够');
+    if (this.deadEnd(cost)) return !!this.fail(KEEP_COINS);
     const before = this.capacity(b);
     this.state.coins -= cost;
     b.level += 1;
@@ -229,6 +234,7 @@ export class Game {
     const f = FOOD_BY_ID[id];
     if (!f || f.unlockLevel > this.state.level) return false;
     if (this.state.coins < f.cost) return !!this.fail('金币不够');
+    if (this.deadEnd(f.cost)) return !!this.fail(KEEP_COINS);
     this.state.coins -= f.cost;
     this.state.food[id] = (this.state.food[id] ?? 0) + 1;
     this.bump('buyFood');
@@ -354,31 +360,33 @@ export class Game {
     this.state.stats[stat] = (this.state.stats[stat] ?? 0) + n;
   }
 
-  /** 保底：把钱花光又没有任何收入来源时，补到刚好够盖一座最便宜的住宅和对应的工作点 */
-  private rescue(): void {
+  /** 没有任何收入来源时，至少要留多少金币才能重新开张 */
+  private restartCost(kinds: Set<string>): number {
+    const open = BUILDINGS.filter((d) => d.unlockLevel <= this.state.level);
+    const site = (k: string) => Math.min(...open.filter((d) => d.work?.bug === k).map((d) => d.cost));
+    if (kinds.size) return Math.min(...[...kinds].map(site));
+    return Math.min(...open.filter((d) => d.home).map((d) => d.cost + site(d.home!.bug)));
+  }
+
+  /** 花掉 spend 金币、加上 add 或去掉 without 之后，是否还有办法赚钱 */
+  private canStillEarn(spend: number, change: { add?: BuildingDef; without?: PlacedBuilding } = {}): boolean {
     const s = this.state;
-    if (s.buildings.some((b) => b.ready || b.job)) return;
-    const kinds = new Set(s.bugs.map((b) => b.kind));
-    const canEarn = s.buildings.some((b) => {
-      const w = defOf(b).work;
-      return w && kinds.has(w.bug);
-    });
-    if (canEarn) return;
-    const cheapest = (ok: (d: (typeof BUILDINGS)[number]) => boolean) =>
-      Math.min(...BUILDINGS.filter((d) => d.unlockLevel <= s.level && ok(d)).map((d) => d.cost));
-    let need = 0;
-    if (kinds.size === 0) {
-      need = cheapest((d) => !!d.home) + cheapest((d) => d.work?.bug === 'ant');
-    } else {
-      need = Math.min(...[...kinds].map((k) => cheapest((d) => d.work?.bug === k)));
-    }
-    if (!Number.isFinite(need) || s.coins >= need) return;
-    s.coins = need;
-    this.bus.emit({ type: 'toast', text: '路过的瓢虫送来一点金币，重新开始吧' });
+    const buildings = s.buildings.filter((b) => b !== change.without);
+    const kinds = new Set<string>(s.bugs.filter((g) => g.homeUid !== change.without?.uid).map((g) => g.kind));
+    if (change.add?.home) kinds.add(change.add.home.bug);
+    const defs = buildings.map(defOf);
+    if (change.add) defs.push(change.add);
+    if (defs.some((d) => d.work && kinds.has(d.work.bug))) return true;
+    const coins = s.coins - spend + buildings.reduce((n, b) => n + (b.ready?.coins ?? 0), 0);
+    return coins >= this.restartCost(kinds);
+  }
+
+  /** 这笔开销会不会把花园带进“没钱也没法赚钱”的死局；本来就在死局里的旧存档不拦 */
+  private deadEnd(spend: number, change?: { add?: BuildingDef; without?: PlacedBuilding }): boolean {
+    return !this.canStillEarn(spend, change) && this.canStillEarn(0);
   }
 
   private afterAction(): void {
-    this.rescue();
     this.checkQuest();
     this.bus.emit({ type: 'changed' });
   }
@@ -394,6 +402,11 @@ export class Game {
       this.bus.emit({ type: 'levelup', level: s.level });
       this.sfx('levelup');
     }
+  }
+
+  /** 读档后对一遍任务：换过任务链的旧存档里，已经达成的任务在这里直接结掉 */
+  syncQuests(): void {
+    this.checkQuest();
   }
 
   private checkQuest(): void {
