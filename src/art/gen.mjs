@@ -22,6 +22,9 @@ const DEFS = {
   bush: '<linearGradient id="bush" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ad35c"/><stop offset="1" stop-color="#5fa23c"/></linearGradient>',
   leaf: '<linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#93cf58"/><stop offset="1" stop-color="#4f9a3a"/></linearGradient>',
   beeClip: '<clipPath id="beeClip"><ellipse cx="-14" cy="-52" rx="34" ry="27"/></clipPath>',
+  bark: '<linearGradient id="bark" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c2905c"/><stop offset=".6" stop-color="#a06d3e"/><stop offset="1" stop-color="#77492a"/></linearGradient>',
+  water: '<linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe9fb"/><stop offset="1" stop-color="#7cc8f0"/></linearGradient>',
+  gold: '<linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe680"/><stop offset="1" stop-color="#e9a41c"/></linearGradient>',
   rock: '<linearGradient id="rock" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dde2e5"/><stop offset="1" stop-color="#a9b1b8"/></linearGradient>',
 };
 
@@ -445,6 +448,202 @@ function genEnv() {
     '<g fill="#ffd34d" stroke-width="2.500"><circle cx="0" cy="-37" r="6"/><circle cx="-9" cy="-30" r="6"/><circle cx="9" cy="-30" r="6"/><circle cx="-6" cy="-21" r="6"/><circle cx="6" cy="-21" r="6"/></g><circle cx="0" cy="-28" r="5" fill="#f2903c" stroke-width="2.500"/>', 3));
 }
 
+// ---------------------------------------------------------------- 第二批：新住宅、工作点与装饰
+
+const el = (cx, cy, rx, ry, fill, extra = '') => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" ${extra}/>`;
+const ci = (cx, cy, r, fill, extra = '') => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" ${extra}/>`;
+const at = (x, y, inner, rot = 0, k = 1) => g(`transform="translate(${x} ${y}) rotate(${rot}) scale(${k})"`, inner);
+const hi = (d, w = 4, o = 0.75) => `<path d="${d}" fill="none" stroke="#fff" stroke-width="${w}" opacity="${o}"/>`;
+const stemP = (d, w = 6) => `<path d="${d}" fill="none" stroke="#3f8f3a" stroke-width="${w}"/>`;
+const leafP = (x, y, rot, k = 1, fill = '#7cc04a') => at(x, y, `<path d="M0 0 q-24 -14 -32 2 q16 14 32 -2z" fill="${fill}"/><path d="M-6 0 q-10 -2 -18 2" fill="none" stroke-width="2" opacity=".45"/>`, rot, k);
+const shroom = (x, y, k = 1) => at(x, y, '<path d="M-5 0 q-2 -10 0 -14 l10 0 q2 4 0 14z" fill="#fff4dc" stroke-width="2.500"/><path d="M-15 -12 q0 -18 15 -18 q15 0 15 18 q-15 5 -30 0z" fill="#ef5a4c" stroke-width="3"/><circle cx="-6" cy="-19" r="2.500" fill="#fff" stroke="none"/><circle cx="5" cy="-23" r="2" fill="#fff" stroke="none"/><circle cx="8" cy="-15" r="2" fill="#fff" stroke="none"/>', 0, k);
+const roundDoor = (x, y, r, gold = false) => ci(x, y, r, '#5b3414') + `<path d="M${x - r * 0.5} ${y + r * 0.2} q${r * 0.5} ${-r * 0.9} ${r} 0" fill="none" stroke="#8a5a30" stroke-width="2.500"/>` + (gold ? `<circle cx="${x}" cy="${y}" r="${r + 4}" fill="none" stroke="#ffd34d" stroke-width="4"/>` : '');
+
+function stump(o = {}) {
+  const h = o.h ?? 0;
+  const top = -84 - h;
+  return '<path d="M-66 -10 q-18 0 -30 12 q20 6 40 -2z M66 -10 q18 0 30 12 q-20 6 -40 -2z M-14 0 q-6 8 -20 10 q20 6 36 -4z" fill="url(#bark)"/>' +
+    `<path d="M-72 -6 q-8 -36 -4 ${top + 6} q76 -24 152 0 q4 ${-top - 42} -4 ${-top - 6} q-72 18 -144 0z" fill="url(#bark)"/>` +
+    g('fill="none" stroke-width="2.500" opacity=".4"', `<path d="M-52 -14 q-4 -24 0 ${top + 34} M-26 -8 q-2 -10 0 -22 M30 -6 q2 -16 0 -30 M56 -16 q4 -22 0 ${top + 40}"/>`) +
+    `<path d="M-62 ${top + 16} q-4 30 0 ${-top - 40}" fill="none" stroke="#e3b98a" stroke-width="5" opacity=".6"/>` +
+    el(0, top, 76, 21, '#f3dcae') + g('fill="none" stroke="#c99a62" stroke-width="2.500"', el(0, top, 52, 14, 'none') + el(-2, top, 28, 7.5, 'none') + `<path d="M40 ${top + 2} l30 4"/>`) +
+    roundDoor(0, -26, 17, o.gold) + step(0, -5, 20);
+}
+
+function genStumpfort() {
+  const VB1 = [-104, -132, 208, 148];
+  // 1 级：矮树桩、三个小圆门窗、顶上一簇蘑菇
+  emit('stumpfort', VB1, ink(stump() + windowAt(-42, -46, 10) + windowAt(42, -50, 10) + shroom(34, -88, 1) + shroom(52, -84, 0.7) + shroom(18, -84, 0.6), 4));
+  // 2 级：顶上长出带门的小树节、梯子、窗台花箱
+  const knot = (x, y, k) => at(x, y, '<path d="M-26 0 q-6 -30 0 -44 q26 -10 52 0 q6 14 0 44 q-26 8 -52 0z" fill="url(#bark)"/>' + el(0, -44, 27, 8, '#f3dcae') + el(0, -44, 14, 4, 'none', 'stroke="#c99a62" stroke-width="2"') + windowAt(0, -20, 9), 0, k);
+  const ladder = (x, y, hh) => `<path d="M${x - 6} ${y} l0 ${-hh} M${x + 6} ${y} l0 ${-hh}" stroke-width="3.500"/><path d="${Array.from({ length: Math.floor(hh / 10) }, (_, i) => `M${x - 6} ${y - 6 - i * 10} l12 0`).join(' ')}" stroke-width="2.500"/>`;
+  emit('stumpfort_2', [-104, -166, 208, 182], ink(
+    stump({ h: 8 }) + knot(-26, -94, 1) + windowAt(-42, -50, 10) + windowAt(42, -54, 10) + windowAt(30, -24, 8) + flowerBox(-42, -34) +
+    ladder(52, -22, 62) + shroom(36, -96, 1.1) + shroom(56, -92, 0.75) + shroom(14, -90, 0.6), 4));
+  // 3 级：再加高，双层树节、金边大门、小旗和路灯，蘑菇成片
+  emit('stumpfort_3', [-112, -206, 224, 222], ink(
+    stump({ h: 26, gold: true }) + knot(-28, -112, 1.15) + knot(-28, -160, 0.72) + pennant(-28, -192, '#ff8a5c') +
+    windowAt(-44, -62, 10) + windowAt(0, -70, 10) + windowAt(44, -66, 10) + windowAt(-40, -26, 8) + windowAt(40, -26, 8) +
+    flowerBox(-44, -46) + flowerBox(44, -50) + '<path d="M-74 -52 q74 20 148 0" fill="none" stroke="#ffd34d" stroke-width="5"/>' +
+    ladder(40, -112, 0) + shroom(38, -114, 1.25) + shroom(62, -110, 0.85) + shroom(16, -108, 0.7) + shroom(-70, 2, 0.8) + lantern(92, 8), 4));
+}
+
+function gourd(o = {}) {
+  return '<path d="M0 -138 q-30 0 -28 28 q2 14 -8 22 q-22 18 -14 50 q10 32 50 32 q40 0 50 -32 q8 -32 -14 -50 q-10 -8 -8 -22 q2 -28 -28 -28z" fill="url(#hive)"/>' +
+    '<path d="M-36 -64 q-10 22 4 44 M-18 -124 q-6 12 -2 24" fill="none" stroke="#fff3c4" stroke-width="6" opacity=".75"/>' +
+    '<path d="M-30 -88 q30 10 60 0" fill="none" stroke-width="3" opacity=".4"/>' +
+    '<path d="M0 -138 l0 -14" stroke="#3f8f3a" stroke-width="6"/>' +
+    ci(0, -50, 15, '#5b3414') + (o.rim ? '<circle cx="0" cy="-50" r="19" fill="none" stroke="#ffd34d" stroke-width="4"/>' : '') +
+    '<path d="M-14 -30 l28 0 l4 7 l-36 0z" fill="#c98f58" stroke-width="3"/>';
+}
+const trellis = (w, hh) => `<path d="M${-w} 4 l0 ${-hh} M${w} 4 l0 ${-hh}" stroke="#8a5a30" stroke-width="9"/><path d="M${-w} 4 l0 ${-hh} M${w} 4 l0 ${-hh}" stroke="#c98f58" stroke-width="3" opacity=".7"/>` +
+  `<path d="M${-w - 12} ${-hh + 6} l${2 * w + 24} 0" stroke="#8a5a30" stroke-width="9"/>` +
+  `<path d="M${-w - 8} ${-hh + 4} q${w * 0.5} -12 ${w} 0 q${w * 0.5} 12 ${w + 8} -2" fill="none" stroke="#3f8f3a" stroke-width="5"/>`;
+
+function genGourdhive() {
+  // 1 级：藤架上挂一只黄葫芦，腰上一个圆洞，两片藤叶
+  emit('gourdhive', [-92, -176, 184, 190], ink(trellis(70, 160) + at(0, -2, gourd()) + leafP(-30, -158, 20, 1.1) + leafP(34, -156, 160, 1.1), 4));
+  // 2 级：旁边多挂一只小葫芦，亮灯小窗和蜂蜜罐
+  emit('gourdhive_2', [-98, -176, 200, 192], ink(trellis(76, 160) + at(-10, -2, gourd() + windowAt(0, -106, 9)) + at(52, -62, gourd(), 0, 0.5) +
+    '<path d="M52 -138 l0 -18" stroke="#3f8f3a" stroke-width="5"/>' + leafP(-40, -158, 20, 1.1) + leafP(28, -156, 160, 1.1) + leafP(78, -150, 200, 0.9) + honeyDrop(22, -70) + honeyPot(-70, 6), 4));
+  // 3 级：三只葫芦、金边洞口、藤上开花、蜜滴和两罐蜂蜜
+  const bloom = (x, y, c) => ci(x, y, 7, c, 'stroke-width="2.500"') + ci(x, y, 2.2, '#f2a900', 'stroke="none"');
+  emit('gourdhive_3', [-108, -196, 216, 212], ink(trellis(84, 180) + '<path d="M-52 -176 l0 30 M58 -176 l0 24" stroke="#3f8f3a" stroke-width="5"/>' +
+    at(-52, -66, gourd(), 0, 0.56) + at(58, -74, gourd(), 0, 0.5) + at(2, -2, gourd({ rim: true }) + windowAt(0, -106, 9), 0, 1.12) +
+    leafP(-74, -178, 10, 1.1) + leafP(30, -178, 165, 1.1) + leafP(90, -172, 200, 0.9) + bloom(-30, -180, '#ff8fa3') + bloom(-8, -184, '#fff') + bloom(70, -180, '#ffd34d') + bloom(48, -184, '#ff8fa3') +
+    honeyDrop(26, -80) + honeyDrop(-36, -40) + honeyPot(-84, 8) + honeyPot(86, 8), 4));
+}
+
+function genWorkSites() {
+  const chip = (x, y, r = 3) => ci(x, y, r, '#6b3a1e', 'stroke="none"');
+  emit('crumbs', [-50, -50, 100, 60], ink(
+    '<path d="M-40 -6 l6 -22 l22 -8 l14 12 l-4 18 l-24 6z" fill="#e8b46a"/>' + chip(-24, -20) + chip(-12, -12, 2.5) + chip(-30, -10, 2.5) + hi('M-30 -26 l14 -5', 3, 0.6) +
+    '<path d="M2 -14 l12 -20 l22 4 l6 18 l-16 10z" fill="#dba25a"/>' + chip(18, -22, 2.5) + chip(28, -14, 2) + hi('M16 -30 l14 3', 3, 0.5) +
+    '<path d="M-8 2 l8 -10 l14 2 l2 10 l-14 4z" fill="#e8b46a" stroke-width="3"/>' + chip(2, -1, 2) +
+    g('fill="#e8b46a" stroke-width="2"', ci(-44, 2, 3, '#e8b46a') + ci(30, 4, 3.5, '#dba25a') + ci(42, -2, 2.5, '#e8b46a') + ci(-18, 6, 2.5, '#dba25a') + ci(-2, -40, 2.5, '#e8b46a'))));
+  const lf = (x, y, rot, c, k = 1) => at(x, y, `<path d="M0 0 q-20 -18 -2 -44 q22 22 2 44z" fill="${c}"/><path d="M0 -4 q-2 -18 -1 -34 M-1 -18 l-8 -8 M0 -26 l8 -7" fill="none" stroke-width="2" opacity=".45"/>`, rot, k);
+  emit('leafpile', [-82, -66, 164, 84], ink(
+    el(0, -4, 44, 11, '#b9793f') + lf(-30, -2, -62, '#f2903c') + lf(32, -2, 64, '#e2553d') + lf(-14, -8, -24, '#ffd34d', 1.1) + lf(18, -8, 28, '#f2903c', 1.1) +
+    lf(0, -14, 0, '#e2553d', 1.15) + lf(-34, 4, -98, '#ffd34d', 0.8) + lf(36, 4, 100, '#c9792f', 0.8) + lf(4, 2, 80, '#ffd34d', 0.75)));
+  const berryB = (x, y, c, r = 8) => ci(x, y, r, c, 'stroke-width="3"') + ci(x - r * 0.3, y - r * 0.35, r * 0.28, '#fff', 'stroke="none" opacity=".85"');
+  emit('berry', [-54, -78, 108, 86], ink(
+    '<path d="M-42 0 q-12 -14 0 -26 q-6 -20 14 -24 q6 -18 28 -12 q20 -8 28 10 q20 4 14 26 q10 12 -4 26z" fill="url(#bush)"/>' +
+    '<path d="M-28 -34 q4 -12 16 -12 M8 -56 q10 -4 18 4" fill="none" stroke="#c6eb8d" stroke-width="4" opacity=".8"/>' +
+    berryB(-22, -18, '#e2483d') + berryB(-8, -30, '#8b5fc7', 7) + berryB(10, -16, '#e2483d', 9) + berryB(26, -30, '#8b5fc7') + berryB(30, -10, '#e2483d', 7) + berryB(-34, -4, '#8b5fc7', 6.5) + berryB(2, -44, '#e2483d', 6.5)));
+  const cone = (x, y, rot, k = 1) => at(x, y, '<path d="M0 0 q-22 -6 -20 -30 q4 -22 20 -28 q16 6 20 28 q2 24 -20 30z" fill="url(#bark)"/>' +
+    g('fill="none" stroke-width="2.500" opacity=".55"', '<path d="M-18 -18 q9 8 18 0 q9 8 18 0 M-19 -32 q9 8 19 0 q10 8 19 0 M-13 -45 q7 6 13 0 q6 6 13 0"/>') + hi('M-12 -44 q-4 10 -4 20', 3.5, 0.45), rot, k);
+  const seed = (x, y, rot) => at(x, y, '<path d="M0 0 q-6 -8 0 -14 q6 6 0 14z" fill="#e3b672" stroke-width="2"/>', rot);
+  emit('pinecone', [-56, -88, 112, 104], ink(cone(-20, -2, -12) + cone(22, -2, 14) + cone(0, -22, 0, 1.05) + seed(-42, 6, -70) + seed(42, 6, 60) + seed(4, 8, 90) + seed(-30, 8, 20)));
+  emit('tincan', [-56, -64, 112, 74], ink(
+    '<path d="M-42 -46 l56 0 q10 20 0 40 l-56 0 q-10 -20 0 -40z" fill="url(#rock)"/>' + '<path d="M-36 -46 q-8 20 0 40 l34 0 q-8 -20 0 -40z" fill="#e9a48e"/>' +
+    '<path d="M-28 -34 q-3 8 0 16 M-14 -36 l8 0 M-14 -26 l10 0 M-14 -16 l8 0" fill="none" stroke-width="2.500" opacity=".4"/>' + hi('M-38 -42 l48 0', 3, 0.7) +
+    '<path d="M4 -46 q-8 20 0 40 M-42 -46 q-8 20 0 40" fill="none" stroke-width="2.500" opacity=".5"/>' +
+    el(14, -26, 9, 20, '#5b4a44') +
+    '<path d="M18 -44 q26 -6 30 12 q-4 16 -26 16 q10 -14 -4 -28z" fill="url(#rock)"/>' + hi('M30 -38 q8 4 10 10', 3, 0.7) +
+    ci(20, -12, 7, '#6fb2e8', 'stroke-width="2.500"') + ci(18, -13, 1.3, '#5a3118', 'stroke="none"') + ci(22, -11, 1.3, '#5a3118', 'stroke="none"') +
+    ci(32, -4, 7, '#ffd34d', 'stroke-width="2.500"') + '<path d="M12 -26 l14 -10 l4 6z" fill="#ef5a4c" stroke-width="2.500"/>' + ci(46, 2, 3, '#c9792f', 'stroke-width="2"') + ci(-48, 4, 2.5, '#a9b1b8', 'stroke-width="2"')));
+  emit('picnic', [-56, -86, 112, 94], ink(
+    '<path d="M-34 -40 q34 -62 68 0" fill="none" stroke="#8a5a30" stroke-width="8"/><path d="M-34 -40 q34 -62 68 0" fill="none" stroke="#d9a55c" stroke-width="3"/>' +
+    '<path d="M-22 -42 q-2 -18 14 -20 q14 0 14 14 l0 8z" fill="#e8b46a"/><path d="M-14 -52 l8 -4 M-6 -50 l8 -4" stroke-width="2" opacity=".5"/>' +
+    ci(20, -48, 12, '#ef5a4c') + '<path d="M20 -60 q2 -6 8 -8" fill="none" stroke-width="3"/>' + hi('M13 -52 q1 -5 5 -7', 3, 0.7) + ci(34, -42, 8, '#8b5fc7', 'stroke-width="3"') +
+    '<path d="M-40 -4 l-6 -36 l92 0 l-6 36 q-40 10 -80 0z" fill="#d9a55c"/>' +
+    g('fill="none" stroke-width="2.500" opacity=".4"', '<path d="M-42 -28 q42 8 84 0 M-41 -16 q41 8 82 0 M-24 -38 l4 34 M0 -38 l0 38 M24 -38 l-4 34"/>') +
+    '<path d="M-48 -42 l96 0 l-4 14 l-14 -6 l-12 8 l-14 -8 l-12 8 l-14 -8 l-12 8 l-10 -6z" fill="#fff"/>' +
+    g('fill="#ef5a4c" stroke="none"', '<path d="M-44 -41 l14 0 l0 7 l-12 0z M-16 -41 l14 0 l0 7 l-14 0z M12 -41 l14 0 l0 7 l-14 0z M38 -41 l8 0 l-2 7 l-6 0z"/>')));
+}
+
+function genFlowers() {
+  const petals = (cx, cy, n0, rx, ry, dist, fill) => Array.from({ length: n0 }, (_, i) => `<ellipse cx="${cx}" cy="${cy - dist}" rx="${rx}" ry="${ry}" fill="${fill}" transform="rotate(${n((360 / n0) * i)} ${cx} ${cy})"/>`).join('');
+  emit('sunflower', [-46, -138, 92, 144], ink(
+    stemP('M0 0 q-5 -44 2 -92', 7) + leafP(0, -26, 0, 1.15) + leafP(0, -44, 180, 1.15) + leafP(0, -62, 14, 0.8) +
+    petals(2, -100, 14, 7.5, 14, 22, '#ffc93c') + ci(2, -100, 19, '#7a4a26') +
+    g('fill="#4f2c14" stroke="none"', ci(-5, -104, 2, '#4f2c14') + ci(4, -108, 2, '#4f2c14') + ci(9, -98, 2, '#4f2c14') + ci(-2, -94, 2, '#4f2c14') + ci(2, -101, 2, '#4f2c14')) +
+    '<path d="M-10 -108 q4 -8 12 -9" fill="none" stroke="#b9793f" stroke-width="3" opacity=".8"/>'));
+  const spike = (x, y, rot, k = 1) => at(x, y, stemP('M0 0 q-2 -30 0 -52', 4) +
+    [[0, -54, 5.5], [-5, -60, 5], [5, -63, 5], [-4, -69, 5], [4, -73, 4.5], [-2, -79, 4.5], [2, -85, 4], [0, -91, 3.5]].map(([x1, y1, r], i) => ci(x1, y1, r, i % 2 ? '#a98be0' : '#8b6fd0', 'stroke-width="2.500"')).join(''), rot, k);
+  emit('lavender', [-48, -104, 96, 110], ink(
+    '<path d="M-6 0 q-18 -10 -26 -30 q16 8 26 30z M6 0 q18 -10 26 -30 q-16 8 -26 30z M0 0 q-4 -16 0 -34 q4 18 0 34z" fill="#8fbf6a" stroke-width="3"/>' +
+    spike(-8, -2, -24, 0.92) + spike(8, -2, 24, 0.92) + spike(-3, -2, -8) + spike(4, -2, 9, 1.05)));
+  emit('rose', [-42, -112, 84, 118], ink(
+    stemP('M0 0 q-4 -36 2 -70', 6) + '<path d="M-2 -20 l-8 -4 M1 -36 l8 -5 M-2 -50 l-7 -4" stroke="#3f8f3a" stroke-width="3.500"/>' + leafP(-1, -28, 8, 1.05, '#5fa23c') + leafP(1, -44, 172, 1.05, '#5fa23c') +
+    '<path d="M-14 -66 q-10 -8 -22 -4 q10 14 22 4z M16 -66 q10 -8 22 -4 q-10 14 -22 4z" fill="#7cc04a" stroke-width="3"/>' +
+    '<path d="M-26 -84 q-4 -24 26 -24 q30 0 26 24 q-4 22 -26 22 q-22 0 -26 -22z" fill="#ff8fa3"/>' +
+    '<path d="M-26 -84 q8 14 26 10 q18 4 26 -10 q-2 22 -26 22 q-24 0 -26 -22z" fill="#ff6f8e"/>' +
+    '<path d="M-14 -90 q2 -14 14 -14 q14 0 14 12 q0 10 -12 10 q-8 0 -8 -7 q0 -5 6 -5" fill="#ffb3c1"/>' + hi('M-20 -92 q2 -10 10 -13', 3.5, 0.7)));
+}
+
+function genDecor() {
+  const fluff = (x, y, rot) => at(x, y, '<path d="M0 0 l0 -8" fill="none" stroke-width="2"/><path d="M-7 -9 q7 -9 14 0 q-7 3 -14 0z" fill="#fffdf5" stroke-width="2"/><circle cx="0" cy="1" r="2" fill="#c99a62" stroke-width="1.500"/>', rot);
+  emit('dandelion', [-46, -116, 108, 122], ink(
+    '<path d="M0 0 q-10 -6 -14 -16 l-6 2 q-2 -8 -10 -10 q6 14 30 24z M0 0 q10 -6 14 -16 l6 2 q2 -8 10 -10 q-6 14 -30 24z" fill="#7cc04a" stroke-width="3"/>' +
+    stemP('M0 0 q-4 -30 2 -56', 4.5) + ci(2, -72, 22, '#fffdf5') +
+    g('fill="none" stroke-width="2" opacity=".4"', Array.from({ length: 12 }, (_, i) => `<path d="M2 -72 l0 -17" transform="rotate(${i * 30} 2 -72)"/>`).join('')) +
+    ci(2, -72, 5, '#e9dcb8', 'stroke-width="2.500"') + fluff(32, -84, 24) + fluff(40, -60, 40) + fluff(26, -98, 10)));
+  emit('shell', [-46, -66, 92, 74], ink(
+    el(18, -2, 22, 6, '#b9793f', 'opacity=".35" stroke="none"') +
+    '<path d="M-30 -6 q-14 -22 6 -42 q22 -18 44 -2 q20 18 6 40 q-10 12 -28 10 q-18 4 -28 -6z" fill="url(#nut)"/>' +
+    '<path d="M-30 -6 q-10 -4 -8 -16 q10 -10 22 -2 q8 10 -4 18z" fill="#7a4a26"/>' +
+    '<path d="M4 -8 q22 -2 22 -22 q-2 -18 -20 -18 q-16 2 -16 16 q2 12 14 11 q9 -2 8 -10 q-2 -6 -8 -5" fill="none" stroke="#b9793f" stroke-width="5"/>' + hi('M-14 -44 q8 -8 18 -8', 4, 0.7)));
+  emit('lantern', [-40, -112, 84, 118], ink(
+    '<path d="M-14 0 q-6 -50 0 -84 q4 -18 26 -16" fill="none" stroke="#8a5a30" stroke-width="8"/><path d="M-15 -8 q-4 -40 1 -70" fill="none" stroke="#c98f58" stroke-width="2.500" opacity=".7"/>' +
+    leafP(-14, -60, 10, 0.8) + '<path d="M-22 0 q8 -6 18 0" fill="none" stroke-width="3"/>' +
+    '<path d="M12 -100 l0 12" stroke-width="3"/><path d="M2 -88 l20 0 l-3 -6 l-14 0z" fill="#8a5a30" stroke-width="3"/>' +
+    '<path d="M0 -88 q-8 22 0 40 l24 0 q8 -18 0 -40z" fill="url(#glow)"/>' + ci(12, -66, 16, '#fff6b0', 'stroke="none" opacity=".45"') +
+    '<path d="M0 -48 l24 0 l-3 6 l-18 0z" fill="#8a5a30" stroke-width="3"/>' + ci(12, -66, 4.5, '#fffbe0', 'stroke="#f2a900" stroke-width="2"') + hi('M4 -82 q-3 10 -1 20', 3, 0.8)));
+  emit('swing', [-50, -110, 100, 116], ink(
+    '<path d="M-38 0 q8 -60 34 -100 q-10 50 -22 100z" fill="url(#bush)"/><path d="M38 0 q-8 -60 -34 -100 q10 50 22 100z" fill="#7cc04a"/>' +
+    '<path d="M-10 -94 l20 0" stroke="#8a5a30" stroke-width="6"/><path d="M-12 -80 l0 52 M12 -80 l0 52" stroke="#c99a62" stroke-width="3"/>' +
+    '<path d="M-24 -26 q24 -12 48 0 q-24 14 -48 0z" fill="#93cf58"/><path d="M-18 -26 l36 0" fill="none" stroke-width="2" opacity=".45"/>' + hi('M-26 -40 q6 -24 14 -40', 3, 0.5)));
+  const blade = (rot, c, c2) => `<g transform="rotate(${rot} 0 -78)"><path d="M0 -78 l-3 -38 q28 4 27 24z" fill="${c}"/><path d="M0 -78 l24 -14 l-5 17z" fill="${c2}" stroke-width="2.500"/></g>`;
+  emit('windmill', [-44, -122, 88, 128], ink(
+    '<path d="M0 0 l0 -78" stroke="#c98f58" stroke-width="6"/><path d="M-12 0 q12 -8 24 0" fill="none" stroke-width="3"/>' +
+    g('transform="rotate(12 0 -78)"', blade(0, '#ff7f6a', '#ffb3a6') + blade(90, '#ffd34d', '#ffe9a0') + blade(180, '#7cc8f0', '#bfe6fa') + blade(270, '#8ecb52', '#c6eb8d')) + ci(0, -78, 6, '#fff', 'stroke-width="3"')));
+  emit('statue', [-44, -112, 88, 120], ink(
+    '<path d="M-30 4 l4 -30 l52 0 l4 30z" fill="url(#rock)"/><path d="M-34 -26 l68 0 l-4 -10 l-60 0z" fill="#e6eaec"/>' + hi('M-22 -20 l-2 16', 3.5, 0.7) + '<path d="M-10 -12 l20 0" stroke-width="2.500" opacity=".4"/>' +
+    at(-2, -34, ant({ sway: 3 }).replaceAll('url(#antBody)', 'url(#gold)'), 0, 0.52) +
+    '<path d="M22 -70 q10 -12 8 -24" fill="none" stroke-width="3.500"/>' +
+    at(30, -96, '<path d="M0 -12 l10 5 l0 11 l-10 5 l-10 -5 l0 -11z" fill="#fff" stroke-width="2.500"/><path d="M0 -2 l10 -5 l0 11 l-10 5z" fill="#a9c6ea" stroke-width="2.500"/><path d="M0 -2 l-10 -5" stroke-width="2.500"/>') +
+    at(-30, -70, '<path d="M0 -8 l2.500 5.500 l5.500 2.500 l-5.500 2.500 l-2.500 5.500 l-2.500 -5.500 l-5.500 -2.500 l5.500 -2.500z" fill="#fff6b0" stroke-width="2"/>')));
+
+  // ---- 2×2：按两格见方的菱形占地来画，原点在占地中心偏下（与蚁窝、蜂房同一套摆放规则）
+  const stones = Array.from({ length: 18 }, (_, i) => {
+    const a = (i / 18) * Math.PI * 2;
+    const r = 8 + (i % 3) * 2;
+    return el(n(Math.cos(a) * 98), n(-30 + Math.sin(a) * 47), r, n(r * 0.72), 'url(#rock)', 'stroke-width="3"');
+  });
+  emit('pond', [-114, -88, 228, 116], ink(
+    el(0, -30, 98, 47, 'url(#water)') + stones.slice(9).concat(stones.slice(0, 9)).join('') +
+    g('fill="none" stroke="#fff" stroke-width="3" opacity=".8"', '<path d="M-60 -44 q14 -8 30 -6 M-50 -34 q8 -4 16 -3 M20 -8 q14 4 28 0 M34 -52 q8 -3 16 0"/>') +
+    '<path d="M-10 -22 q-2 -16 22 -18 q26 2 24 18 q-4 14 -24 14 l2 -12 l-14 10 q-8 -4 -10 -12z" fill="#7cc04a"/><path d="M14 -24 l14 -8 M14 -24 l16 4" fill="none" stroke-width="2" opacity=".4"/>' +
+    at(-44, -24, ci(0, 0, 6, '#ff8fa3', 'stroke-width="2.500"') + ci(-7, 3, 5, '#ffb3c1', 'stroke-width="2.500"') + ci(7, 3, 5, '#ffb3c1', 'stroke-width="2.500"') + ci(0, 2, 2.5, '#ffd34d', 'stroke="none"')) +
+    at(-84, 2, '<path d="M0 0 q-2 -16 -4 -24 q8 6 9 14 q0 -18 5 -30 q5 12 4 28 q6 -8 10 -10 q-2 12 -6 22z" fill="url(#bush)" stroke-width="3"/>', 0, 0.9)));
+  const bowl = (y, k, c, c2) => at(0, y, '<path d="M-60 0 q60 40 120 0 q-8 -18 -30 -8 q-12 -16 -30 -4 q-18 -12 -30 4 q-22 -10 -30 8z" fill="' + c + '"/><path d="M-60 0 q60 40 120 0 q-60 20 -120 0z" fill="' + c2 + '" stroke-width="2.500"/>', 0, k);
+  const dropW = (x, y, k = 1) => at(x, y, '<path d="M0 -8 q7 9 0 13 q-7 -4 0 -13z" fill="#bfe6fa" stroke-width="2"/>', 0, k);
+  emit('fountain', [-104, -166, 208, 186], ink(
+    el(0, -22, 96, 40, 'url(#rock)') + el(0, -28, 80, 30, 'url(#water)') + hi('M-84 -14 q20 22 60 26', 4, 0.7) +
+    g('fill="none" stroke="#fff" stroke-width="3" opacity=".8"', '<path d="M-56 -30 q10 -5 22 -3 M34 -18 q12 3 24 -1"/>') +
+    '<path d="M-10 -24 q-4 -60 0 -110 l20 0 q4 50 0 110z" fill="#e6eaec"/>' +
+    g('fill="none" stroke="#9fd6f2" stroke-width="5" opacity=".9"', '<path d="M-48 -52 q-8 14 -6 26 M48 -52 q8 14 6 26 M-30 -92 q-8 12 -8 24 M30 -92 q8 12 8 24"/>') +
+    bowl(-58, 1, '#ff9fb5', '#ff7f9c') + bowl(-98, 0.66, '#ffb9c8', '#ff9fb5') + bowl(-130, 0.38, '#ffd3dc', '#ffb9c8') +
+    dropW(0, -150, 1.5) + dropW(-16, -142) + dropW(16, -142) + dropW(-28, -124, 0.8) + dropW(28, -124, 0.8)));
+  const BANDS = ['#ef5a4c', '#f2903c', '#ffd34d', '#8ecb52', '#6cc5e8', '#6f8fe0', '#a98be0'];
+  const arc = (r, extra) => `<path d="M${-r} -8 A${r} ${n(r * 1.12)} 0 0 1 ${r} -8" fill="none" ${extra}/>`;
+  const tuftB = (x) => at(x, 0, '<path d="M-22 0 q-10 -12 2 -20 q2 -14 18 -10 q14 -6 20 8 q10 10 -2 22z" fill="url(#bush)" stroke-width="3"/>' +
+    ci(-8, -12, 5, '#ff8fa3', 'stroke-width="2.500"') + ci(6, -18, 5, '#fff', 'stroke-width="2.500"') + ci(14, -6, 5, '#ffd34d', 'stroke-width="2.500"') + ci(-2, -2, 4, '#a98be0', 'stroke-width="2.500"'));
+  emit('rainbow', [-116, -128, 232, 138],
+    `<g stroke-linecap="butt">${arc(78, `stroke="${INK}" stroke-width="63"`)}${BANDS.map((c, i) => arc(102 - i * 8, `stroke="${c}" stroke-width="8.500"`)).join('')}` +
+    BANDS.map((_, i) => arc(102 - i * 8, 'stroke="#fff" stroke-width="5.500" stroke-dasharray="0.1 11" stroke-linecap="round" opacity=".38"')).join('') + '</g>' +
+    ink(tuftB(-80) + tuftB(80)));
+}
+
+function genBatch2() {
+  genStumpfort();
+  genGourdhive();
+  genWorkSites();
+  genFlowers();
+  genDecor();
+}
+
 genAnt();
 genBee();
 genStink();
@@ -453,6 +652,7 @@ genAnthouse();
 genBeehive();
 genIcons();
 genEnv();
+genBatch2();
 
 mkdirSync(OUT, { recursive: true });
 for (const [name, f] of Object.entries(files)) writeFileSync(join(OUT, `${name}.svg`), f.svg.replace(/(\d)\.(\d)00\b/g, '$1.$2').replace(/(\d)\.0\b/g, '$1'));
@@ -464,7 +664,9 @@ if (sheetAt > 0) {
   const GROUPS = [
     ['蚂蚁', /^ant(_|$)/], ['蜜蜂', /^bee(_|$)/], ['臭虫', /^stink/], ['蚁狮', /^antlion/],
     ['蚁窝 1~3 级', /^anthouse/], ['蜂房 1~3 级', /^beehive/],
-    ['工作点与装饰', /^(junk|daisy|tulip|bell|pebble|clover|fence|mushroom)$/],
+    ['树桩蚁堡 1~3 级', /^stumpfort/], ['葫芦蜂巢 1~3 级', /^gourdhive/],
+    ['蚂蚁工作点', /^(junk|crumbs|leafpile|berry|pinecone|tincan|picnic)$/], ['蜜蜂工作点', /^(daisy|tulip|bell|sunflower|lavender|rose)$/],
+    ['装饰', /^(pebble|clover|fence|dandelion|mushroom|shell|lantern|swing|windmill|statue)$/], ['2×2 装饰', /^(pond|fountain|rainbow)$/],
     ['食物与图标', /^(sugar|cookie|cake|coin|icon_)/], ['特效', /^fx_/], ['场景', /^(env_|tile_|shadow)/],
   ];
   const all = readdirSync(OUT).filter((f) => f.endsWith('.svg')).map((f) => f.slice(0, -4)).sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
