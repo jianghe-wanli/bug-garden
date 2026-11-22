@@ -81,7 +81,7 @@ export function mountUi(app: App, root: HTMLElement): void {
     if (sel?.kind === 'bug') {
       const bug = game.bug(sel.uid);
       if (bug) {
-        const foods = FOODS.filter((f) => f.unlockLevel <= s.level).map((f) => foodItem(f.id, 'feed')).join('');
+        const foods = FOODS.filter((f) => f.unlockLevel <= s.level || (s.food[f.id] ?? 0) > 0).map((f) => foodItem(f.id, 'feed')).join('');
         return `<div class="sheet"><div class="row head">${icon(bug.kind, 'pic')}<div class="grow"><b>${BUG_NAME[bug.kind]}</b><small>${STATE_NAME[bug.state]}</small>
           <div class="bar"><i style="width:${Math.round(bug.energy)}%"></i><span>体力 ${Math.round(bug.energy)}/100</span></div></div>
           <button class="x" data-act="close">✕</button></div><div class="items">${foods}</div></div>`;
