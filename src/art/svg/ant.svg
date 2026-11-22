@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-72 -118 150 126" width="150" height="126">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cdeffd"/><stop offset="1" stop-color="#eaf8d8"/>
+  </linearGradient><linearGradient id="antBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f08a4b"/><stop offset="1" stop-color="#c9532a"/>
+  </linearGradient><linearGradient id="beeBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffdc5e"/><stop offset="1" stop-color="#f5a623"/>
+  </linearGradient><linearGradient id="bugBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#a6cf5a"/><stop offset="1" stop-color="#5f9a3a"/>
+  </linearGradient><linearGradient id="hive" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#ffd978"/><stop offset=".6" stop-color="#f4b23f"/><stop offset="1" stop-color="#d98a22"/>
+  </linearGradient><linearGradient id="nut" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#f6d9a4"/><stop offset=".65" stop-color="#e3b672"/><stop offset="1" stop-color="#c48f4c"/>
+  </linearGradient><linearGradient id="cap" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#a8703f"/><stop offset="1" stop-color="#6f4423"/>
+  </linearGradient><radialGradient id="glow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#fff6b0"/><stop offset="1" stop-color="#ffc24a"/>
+  </radialGradient></defs>
+<g stroke="#5a3118" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+    <g fill="none" stroke-width="5">
+      <path d="M-8 -30 q-14 12 -20 28"/><path d="M0 -28 q-2 14 -2 28"/><path d="M10 -30 q12 10 16 28"/>
+    </g>
+    <ellipse cx="-34" cy="-40" rx="28" ry="23" fill="url(#antBody)"/>
+    <path d="M-52 -50 q10 -12 26 -10" fill="none" stroke="#ffc59a" stroke-width="5" opacity=".8"/>
+    <ellipse cx="0" cy="-40" rx="15" ry="14" fill="url(#antBody)"/>
+    <g fill="none" stroke-width="5">
+      <path d="M-4 -34 q-16 14 -26 32"/><path d="M4 -32 q0 16 4 32"/><path d="M12 -36 q16 10 22 30"/>
+    </g>
+    <path d="M22 -84 q-6 -22 -24 -24" fill="none" stroke-width="4"/>
+    <path d="M38 -84 q10 -20 28 -16" fill="none" stroke-width="4"/>
+    <circle cx="-3" cy="-108" r="5" fill="#ffd166"/><circle cx="67" cy="-100" r="5" fill="#ffd166"/>
+    <circle cx="28" cy="-62" r="27" fill="url(#antBody)"/>
+    <path d="M10 -78 q8 -9 20 -9" fill="none" stroke="#ffc59a" stroke-width="5" opacity=".8"/>
+    <ellipse cx="20" cy="-64" rx="8" ry="10" fill="#fff"/><ellipse cx="41" cy="-64" rx="8" ry="10" fill="#fff"/>
+    <circle cx="22" cy="-62" r="4.5" fill="#2b1a10" stroke="none"/><circle cx="43" cy="-62" r="4.5" fill="#2b1a10" stroke="none"/>
+    <circle cx="23.5" cy="-64" r="1.6" fill="#fff" stroke="none"/><circle cx="44.5" cy="-64" r="1.6" fill="#fff" stroke="none"/>
+    <path d="M24 -48 q8 7 16 0" fill="none" stroke-width="3"/>
+    <ellipse cx="10" cy="-52" rx="5" ry="3" fill="#ff9d8a" stroke="none" opacity=".8"/>
+    <ellipse cx="50" cy="-52" rx="5" ry="3" fill="#ff9d8a" stroke="none" opacity=".8"/></g>
+</svg>

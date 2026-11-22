@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-76 -170 152 176" width="152" height="176">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cdeffd"/><stop offset="1" stop-color="#eaf8d8"/>
+  </linearGradient><linearGradient id="antBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f08a4b"/><stop offset="1" stop-color="#c9532a"/>
+  </linearGradient><linearGradient id="beeBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffdc5e"/><stop offset="1" stop-color="#f5a623"/>
+  </linearGradient><linearGradient id="bugBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#a6cf5a"/><stop offset="1" stop-color="#5f9a3a"/>
+  </linearGradient><linearGradient id="hive" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#ffd978"/><stop offset=".6" stop-color="#f4b23f"/><stop offset="1" stop-color="#d98a22"/>
+  </linearGradient><linearGradient id="nut" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#f6d9a4"/><stop offset=".65" stop-color="#e3b672"/><stop offset="1" stop-color="#c48f4c"/>
+  </linearGradient><linearGradient id="cap" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#a8703f"/><stop offset="1" stop-color="#6f4423"/>
+  </linearGradient><radialGradient id="glow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#fff6b0"/><stop offset="1" stop-color="#ffc24a"/>
+  </radialGradient></defs>
+<g stroke="#5a3118" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M-52 -78 q-8 52 14 74 q38 14 76 0 q22 -22 14 -74z" fill="url(#nut)"/>
+    <path d="M-40 -66 q-4 34 8 52" fill="none" stroke="#fff1cf" stroke-width="6" opacity=".7"/>
+    <path d="M-70 -78 q-4 -50 70 -56 q74 6 70 56 q-70 22 -140 0z" fill="url(#cap)"/>
+    <g fill="none" stroke="#c98f58" stroke-width="3" opacity=".7">
+      <path d="M-50 -92 q14 8 28 0 q14 8 28 0 q14 8 28 0 q10 6 18 0"/>
+      <path d="M-40 -112 q12 8 26 0 q14 8 28 0 q12 8 26 0"/>
+    </g>
+    <path d="M0 -134 q-2 -16 10 -24" fill="none" stroke-width="7"/>
+    <path d="M10 -158 q22 -14 34 4 q-18 14 -34 -4z" fill="#7cc04a"/>
+    <path d="M-16 -4 l0 -30 q16 -20 32 0 l0 30z" fill="#7a4a26"/>
+    <circle cx="9" cy="-20" r="2.5" fill="#ffd166" stroke="none"/>
+    <circle cx="-34" cy="-46" r="12" fill="url(#glow)"/><path d="M-34 -58 l0 24 M-46 -46 l24 0" stroke-width="2.5"/>
+    <circle cx="36" cy="-46" r="12" fill="url(#glow)"/><path d="M36 -58 l0 24 M24 -46 l24 0" stroke-width="2.5"/></g>
+</svg>

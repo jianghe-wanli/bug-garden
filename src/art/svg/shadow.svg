@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-48 -16 96 32" width="96" height="32">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cdeffd"/><stop offset="1" stop-color="#eaf8d8"/>
+  </linearGradient><linearGradient id="antBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f08a4b"/><stop offset="1" stop-color="#c9532a"/>
+  </linearGradient><linearGradient id="beeBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffdc5e"/><stop offset="1" stop-color="#f5a623"/>
+  </linearGradient><linearGradient id="bugBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#a6cf5a"/><stop offset="1" stop-color="#5f9a3a"/>
+  </linearGradient><linearGradient id="hive" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#ffd978"/><stop offset=".6" stop-color="#f4b23f"/><stop offset="1" stop-color="#d98a22"/>
+  </linearGradient><linearGradient id="nut" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#f6d9a4"/><stop offset=".65" stop-color="#e3b672"/><stop offset="1" stop-color="#c48f4c"/>
+  </linearGradient><linearGradient id="cap" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#a8703f"/><stop offset="1" stop-color="#6f4423"/>
+  </linearGradient><radialGradient id="glow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#fff6b0"/><stop offset="1" stop-color="#ffc24a"/>
+  </radialGradient></defs>
+<ellipse cx="0" cy="0" rx="46" ry="14" fill="#1d3b12" opacity=".22"/>
+</svg>

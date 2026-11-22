@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 -92 60 96" width="60" height="96">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cdeffd"/><stop offset="1" stop-color="#eaf8d8"/>
+  </linearGradient><linearGradient id="antBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f08a4b"/><stop offset="1" stop-color="#c9532a"/>
+  </linearGradient><linearGradient id="beeBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffdc5e"/><stop offset="1" stop-color="#f5a623"/>
+  </linearGradient><linearGradient id="bugBody" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#a6cf5a"/><stop offset="1" stop-color="#5f9a3a"/>
+  </linearGradient><linearGradient id="hive" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#ffd978"/><stop offset=".6" stop-color="#f4b23f"/><stop offset="1" stop-color="#d98a22"/>
+  </linearGradient><linearGradient id="nut" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#f6d9a4"/><stop offset=".65" stop-color="#e3b672"/><stop offset="1" stop-color="#c48f4c"/>
+  </linearGradient><linearGradient id="cap" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#a8703f"/><stop offset="1" stop-color="#6f4423"/>
+  </linearGradient><radialGradient id="glow" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#fff6b0"/><stop offset="1" stop-color="#ffc24a"/>
+  </radialGradient></defs>
+<g stroke="#5a3118" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M0 0 q4 -30 0 -56" fill="none" stroke="#3f8f3a" stroke-width="6"/>
+    <path d="M0 -8 q-26 -20 -24 -44 q20 12 24 44z" fill="#7cc04a"/><path d="M0 -8 q24 -16 22 -38 q-18 10 -22 38z" fill="#6ab13f"/>
+    <path d="M-20 -86 q-4 28 20 32 q24 -4 20 -32 l-10 12 l-10 -16 l-10 16z" fill="#ff7fa0"/>
+    <path d="M-12 -74 q-2 10 6 16" fill="none" stroke="#ffd0dc" stroke-width="4"/></g>
+</svg>
