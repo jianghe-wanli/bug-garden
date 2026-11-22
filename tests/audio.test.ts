@@ -25,6 +25,7 @@ class FakeNode {
   loop = false;
   starts: number[] = [];
   connect(): void {}
+  disconnect(): void {}
   start(t = 0): void {
     this.starts.push(t);
   }

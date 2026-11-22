@@ -126,10 +126,15 @@ export class MusicPlayer {
   private nextTime = 0;
   private out: GainNode;
 
-  constructor(private ctx: Ctx, dest: AudioNode) {
-    this.out = ctx.createGain();
-    this.out.gain.value = 0;
-    this.out.connect(dest);
+  constructor(private ctx: Ctx, private dest: AudioNode) {
+    this.out = this.makeOut();
+  }
+
+  private makeOut(): GainNode {
+    const out = this.ctx.createGain();
+    out.gain.value = 0;
+    out.connect(this.dest);
+    return out;
   }
 
   get playing(): boolean {
@@ -138,6 +143,9 @@ export class MusicPlayer {
 
   start(): void {
     if (this.timer != null) return;
+    // 上次停下时已经排进去的音符可能随上下文挂起被冻住：换一个输出节点把它们甩掉，免得和新的一小节叠在一起
+    this.out.disconnect();
+    this.out = this.makeOut();
     const now = this.ctx.currentTime;
     this.nextTime = now + 0.12;
     // 从当前小节的开头接着放，而不是从半拍中间
