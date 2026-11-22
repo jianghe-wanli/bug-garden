@@ -132,4 +132,5 @@ export type GameEvent =
   | { type: 'changed' };
 
 export type SfxName =
-  | 'tap' | 'build' | 'coin' | 'feed' | 'levelup' | 'quest' | 'shoo' | 'pest' | 'error' | 'assign' | 'upgrade';
+  | 'tap' | 'build' | 'coin' | 'feed' | 'levelup' | 'quest' | 'shoo' | 'pest' | 'error' | 'assign' | 'upgrade'
+  | 'ready' | 'trapped' | 'flee' | 'buy' | 'sell';

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { Game } from '../src/core/sim';
 import { loadGame, newGame, saveGame } from '../src/core/state';
+import { BUILDING_BY_ID } from '../src/data/buildings';
+import { XP_TO_NEXT } from '../src/data/levels';
 
 function seeded(seed = 1): () => number {
   let s = seed;
@@ -129,7 +131,8 @@ describe('成长与存档', () => {
   it('经验够了会升级', () => {
     const game = setup();
     game.state.coins = 10000;
-    for (let i = 0; i < 6; i++) game.place('anthouse', (i % 3) * 3, Math.floor(i / 3) * 3);
+    const houses = Math.ceil(XP_TO_NEXT[0] / BUILDING_BY_ID.anthouse.buildXp);
+    for (let i = 0; i < houses; i++) game.place('anthouse', (i % 6) * 2, Math.floor(i / 6) * 2);
     expect(game.state.level).toBeGreaterThanOrEqual(2);
   });
 
