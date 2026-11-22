@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>虫虫花园 · 音效试听</title>
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; margin: 16px; background: #f4fbe9; color: #2d4a1e; }
+    button { font: inherit; margin: 4px; padding: 10px 14px; border: 0; border-radius: 12px; background: #8ecb52; color: #fff; }
+    button.ghost { background: #fff; color: #2d4a1e; border: 1px solid #b9dc93; }
+    small { display: block; color: #6b8a57; }
+  </style>
+</head>
+<body>
+  <!-- 开发用：npm run dev 后打开 /tests/tools/audition.html。不参与打包。 -->
+  <h3>音效</h3>
+  <div id="sfx"></div>
+  <h3>背景音乐</h3>
+  <button id="music">播放 / 停止</button>
+  <h3>导出 wav</h3>
+  <button id="dl" class="ghost">下载全部（每个音效一个文件 + 两遍音乐）</button>
+  <small>用 OfflineAudioContext 渲染，走和游戏里一样的音量与压限。</small>
+  <script type="module">
+    import { createMix } from '/src/audio/mix.ts';
+    import { MusicPlayer, BEAT, LOOP_BEATS, scheduleBeats } from '/src/audio/music.ts';
+    import { SFX_LENGTH, SFX_NAMES, playSfx } from '/src/audio/synth.ts';
+
+    const RATE = 44100;
+
+    let live = null;
+    let music = null;
+    function liveCtx() {
+      if (!live) {
+        live = new AudioContext();
+        const mix = createMix(live);
+        live.sfx = mix.sfx;
+        music = new MusicPlayer(live, mix.music);
+      }
+      live.resume();
+      return live;
+    }
+
+    let combo = 0;
+    for (const name of SFX_NAMES) {
+      const b = document.createElement('button');
+      b.textContent = name;
+      b.onclick = () => {
+        const ctx = liveCtx();
+        combo = name === 'coin' ? (combo + 1) % 6 : 0;
+        playSfx(ctx, ctx.sfx, name, ctx.currentTime + 0.01, name === 'coin' ? combo : 0);
+      };
+      document.getElementById('sfx').append(b);
+    }
+    document.getElementById('music').onclick = () => {
+      liveCtx();
+      if (music.playing) music.stop(); else music.start();
+    };
+
+    function wav(buffer) {
+      const n = buffer.length;
+      const out = new DataView(new ArrayBuffer(44 + n * 2));
+      const str = (o, s) => [...s].forEach((c, i) => out.setUint8(o + i, c.charCodeAt(0)));
+      str(0, 'RIFF'); out.setUint32(4, 36 + n * 2, true); str(8, 'WAVEfmt ');
+      out.setUint32(16, 16, true); out.setUint16(20, 1, true); out.setUint16(22, 1, true);
+      out.setUint32(24, RATE, true); out.setUint32(28, RATE * 2, true); out.setUint16(32, 2, true); out.setUint16(34, 16, true);
+      str(36, 'data'); out.setUint32(40, n * 2, true);
+      const data = buffer.getChannelData(0);
+      let peak = 0;
+      for (let i = 0; i < n; i++) {
+        peak = Math.max(peak, Math.abs(data[i]));
+        out.setInt16(44 + i * 2, Math.max(-1, Math.min(1, data[i])) * 32767, true);
+      }
+      return { bytes: new Uint8Array(out.buffer), peak };
+    }
+
+    async function render(seconds, schedule, bus) {
+      const ctx = new OfflineAudioContext(1, Math.ceil(seconds * RATE), RATE);
+      schedule(ctx, createMix(ctx)[bus]);
+      return wav(await ctx.startRendering());
+    }
+
+    /** 返回 { 文件名: { bytes, peak } } */
+    async function renderAll() {
+      const files = {};
+      for (const name of SFX_NAMES) {
+        files[`sfx-${name}.wav`] = await render(SFX_LENGTH[name] + 0.1, (c, d) => playSfx(c, d, name, 0.02), 'sfx');
+      }
+      files['sfx-coin-combo.wav'] = await render(2.6, (c, d) => { for (let i = 0; i < 6; i++) playSfx(c, d, 'coin', 0.02 + i * 0.35, i); }, 'sfx');
+      // 所有音效依次播放，方便一口气听完
+      let t = 0.1;
+      const marks = SFX_NAMES.map((name) => { const at = t; t += SFX_LENGTH[name] + 0.5; return [name, at]; });
+      files['sfx-all.wav'] = await render(t, (c, d) => marks.forEach(([name, at]) => playSfx(c, d, name, at)), 'sfx');
+      files['music-garden-loop.wav'] = await render(LOOP_BEATS * 2 * BEAT + 1.5, (c, d) => scheduleBeats(c, d, 0.05, LOOP_BEATS * 2), 'music');
+      return files;
+    }
+    window.renderAll = async () => {
+      const files = await renderAll();
+      return Object.fromEntries(Object.entries(files).map(([k, v]) => [k, { peak: v.peak, b64: btoa(Array.from(v.bytes, (x) => String.fromCharCode(x)).join('')) }]));
+    };
+
+    document.getElementById('dl').onclick = async () => {
+      for (const [name, f] of Object.entries(await renderAll())) {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([f.bytes], { type: 'audio/wav' }));
+        a.download = name;
+        a.click();
+      }
+    };
+  </script>
+</body>
+</html>
