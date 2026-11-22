@@ -214,6 +214,15 @@ describe('成长与存档', () => {
     expect(game.state.coins).toBeLessThan(coins);
   });
 
+  it('已有工作点时只需留够盖住宅的钱', () => {
+    const game = setup();
+    game.place('junk', 6, 3);
+    game.state.coins = BUILDING_BY_ID.anthouse.cost + 8;
+    expect(game.buyFood('sugar')).toBe(true);
+    expect(game.buyFood('sugar')).toBe(false);
+    expect(game.place('anthouse', 2, 2)).not.toBeNull();
+  });
+
   it('原地“移动”不算移动', () => {
     const game = setup();
     const b = game.place('anthouse', 2, 2)!;

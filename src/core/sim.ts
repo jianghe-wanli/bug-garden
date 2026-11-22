@@ -361,9 +361,11 @@ export class Game {
   }
 
   /** 没有任何收入来源时，至少要留多少金币才能重新开张 */
-  private restartCost(kinds: Set<string>): number {
+  private restartCost(kinds: Set<string>, owned: BuildingDef[]): number {
     const open = BUILDINGS.filter((d) => d.unlockLevel <= this.state.level);
-    const site = (k: string) => Math.min(...open.filter((d) => d.work?.bug === k).map((d) => d.cost));
+    // 已经有对应的工作点就不用再留这份钱
+    const site = (k: string) =>
+      owned.some((d) => d.work?.bug === k) ? 0 : Math.min(...open.filter((d) => d.work?.bug === k).map((d) => d.cost));
     if (kinds.size) return Math.min(...[...kinds].map(site));
     return Math.min(...open.filter((d) => d.home).map((d) => d.cost + site(d.home!.bug)));
   }
@@ -378,7 +380,7 @@ export class Game {
     if (change.add) defs.push(change.add);
     if (defs.some((d) => d.work && kinds.has(d.work.bug))) return true;
     const coins = s.coins - spend + buildings.reduce((n, b) => n + (b.ready?.coins ?? 0), 0);
-    return coins >= this.restartCost(kinds);
+    return coins >= this.restartCost(kinds, defs);
   }
 
   /** 这笔开销会不会把花园带进“没钱也没法赚钱”的死局；本来就在死局里的旧存档不拦 */
