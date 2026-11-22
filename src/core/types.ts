@@ -105,7 +105,7 @@ export interface Pest {
 }
 
 export interface GameState {
-  version: 1;
+  version: 2;
   coins: number;
   xp: number;
   level: number;

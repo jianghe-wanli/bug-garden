@@ -1,4 +1,4 @@
-import { BUILDING_BY_ID } from '../data/buildings';
+import { BUILDINGS, BUILDING_BY_ID } from '../data/buildings';
 import { FOOD_BY_ID } from '../data/foods';
 import { MAX_LEVEL, XP_TO_NEXT, levelUpCoins } from '../data/levels';
 import { MAX_PESTS, PESTS, PEST_BY_ID, PEST_INTERVAL } from '../data/pests';
@@ -162,7 +162,7 @@ export class Game {
     for (const p of this.state.pests) if (p.targetUid === uid) this.pestFlee(p);
     this.state.buildings = this.state.buildings.filter((s) => s.uid !== uid);
     this.state.coins += Math.floor(d.cost * SELL_REFUND);
-    this.sfx('tap');
+    this.sfx('sell');
     this.afterAction();
     return true;
   }
@@ -232,7 +232,7 @@ export class Game {
     this.state.coins -= f.cost;
     this.state.food[id] = (this.state.food[id] ?? 0) + 1;
     this.bump('buyFood');
-    this.sfx('tap');
+    this.sfx('buy');
     this.afterAction();
     return true;
   }
@@ -255,7 +255,7 @@ export class Game {
     const p = this.state.pests.find((q) => q.uid === pestUid);
     if (!p || p.state === 'flee') return false;
     p.hp -= 1;
-    this.sfx('shoo');
+    this.sfx(p.hp > 0 ? 'shoo' : 'flee');
     if (p.hp > 0) {
       this.bus.emit({ type: 'changed' });
       return true;
@@ -354,7 +354,31 @@ export class Game {
     this.state.stats[stat] = (this.state.stats[stat] ?? 0) + n;
   }
 
+  /** 保底：把钱花光又没有任何收入来源时，补到刚好够盖一座最便宜的住宅和对应的工作点 */
+  private rescue(): void {
+    const s = this.state;
+    if (s.buildings.some((b) => b.ready || b.job)) return;
+    const kinds = new Set(s.bugs.map((b) => b.kind));
+    const canEarn = s.buildings.some((b) => {
+      const w = defOf(b).work;
+      return w && kinds.has(w.bug);
+    });
+    if (canEarn) return;
+    const cheapest = (ok: (d: (typeof BUILDINGS)[number]) => boolean) =>
+      Math.min(...BUILDINGS.filter((d) => d.unlockLevel <= s.level && ok(d)).map((d) => d.cost));
+    let need = 0;
+    if (kinds.size === 0) {
+      need = cheapest((d) => !!d.home) + cheapest((d) => d.work?.bug === 'ant');
+    } else {
+      need = Math.min(...[...kinds].map((k) => cheapest((d) => d.work?.bug === k)));
+    }
+    if (!Number.isFinite(need) || s.coins >= need) return;
+    s.coins = need;
+    this.bus.emit({ type: 'toast', text: '路过的瓢虫送来一点金币，重新开始吧' });
+  }
+
   private afterAction(): void {
+    this.rescue();
     this.checkQuest();
     this.bus.emit({ type: 'changed' });
   }
@@ -450,6 +474,7 @@ export class Game {
     bug.energy = Math.max(0, bug.energy - w.energy);
     bug.targetUid = null;
     this.sendHome(bug);
+    this.sfx('ready');
     this.bus.emit({ type: 'changed' });
   }
 
@@ -511,7 +536,11 @@ export class Game {
       s.pestTimer -= dt;
       if (s.pestTimer <= 0) {
         s.pestTimer = PEST_INTERVAL[0] + this.rng() * (PEST_INTERVAL[1] - PEST_INTERVAL[0]);
-        if (s.pests.length < MAX_PESTS) this.spawnPest(unlocked[Math.floor(this.rng() * unlocked.length)].id);
+        if (s.pests.length < MAX_PESTS) {
+          // 花园摆满时蚁狮没地方挖坑，改来一只臭虫
+          const kind = unlocked[Math.floor(this.rng() * unlocked.length)].id;
+          if (!this.spawnPest(kind) && kind !== 'stink' && unlocked.some((u) => u.id === 'stink')) this.spawnPest('stink');
+        }
       }
     }
     for (const p of [...s.pests]) {
@@ -613,6 +642,7 @@ export class Game {
     near.trapUid = p.uid;
     near.x = p.x + 0.05;
     near.y = p.y + 0.1;
+    this.sfx('trapped');
     this.bus.emit({ type: 'toast', text: '蚂蚁被蚁狮抓住了，快点它！' });
     this.bus.emit({ type: 'changed' });
   }

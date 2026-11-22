@@ -179,6 +179,48 @@ describe('成长与存档', () => {
     expect(junk.job!.remaining).toBe(remaining);
   });
 
+  it('第 1 版存档保留花园，任务链从头开始', () => {
+    const mem = new Map<string, string>();
+    const storage = { getItem: (k: string) => mem.get(k) ?? null, setItem: (k: string, v: string) => void mem.set(k, v), removeItem: (k: string) => void mem.delete(k) } as unknown as Storage;
+    const game = setup();
+    game.place('anthouse', 2, 2);
+    saveGame(game.state, storage);
+    const key = [...mem.keys()][0];
+    const old = JSON.parse(mem.get(key)!);
+    old.version = 1;
+    old.quest = { index: 7, base: 3 };
+    mem.set(key, JSON.stringify(old));
+    const loaded = loadGame(storage)!;
+    expect(loaded.version).toBe(2);
+    expect(loaded.buildings).toHaveLength(1);
+    expect(loaded.quest).toEqual({ index: 0, base: 0 });
+  });
+
+  it('把钱花光又没有收入来源时给保底，不会卡死', () => {
+    const game = setup();
+    const need = BUILDING_BY_ID.anthouse.cost + BUILDING_BY_ID.junk.cost;
+    for (let i = 0; i < 40 && game.state.coins >= need; i++) {
+      const b = game.place('anthouse', 2, 2)!;
+      game.remove(b.uid);
+    }
+    expect(game.state.coins).toBeGreaterThanOrEqual(need);
+    expect(game.place('anthouse', 2, 2)).not.toBeNull();
+    expect(game.place('junk', 6, 3)).not.toBeNull();
+  });
+
+  it('花园摆满时改来臭虫', () => {
+    const game = new Game(newGame(), () => 0.99);
+    game.state.level = 13;
+    game.state.coins = 1e9;
+    game.place('anthouse', 0, 0);
+    game.place('junk', 2, 0);
+    for (let x = 0; x < 12; x++) for (let y = 0; y < 12; y++) game.place('pebble', x, y);
+    expect(game.spawnPest('antlion')).toBeNull();
+    game.state.pestTimer = 0.05;
+    run(game, 0.2);
+    expect(game.state.pests.map((p) => p.kind)).toEqual(['stink']);
+  });
+
   it('存档读档往返一致', () => {
     const mem = new Map<string, string>();
     const storage = {

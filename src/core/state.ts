@@ -4,7 +4,7 @@ const SAVE_KEY = 'bug-garden-save-v1';
 
 export function newGame(): GameState {
   return {
-    version: 1,
+    version: 2,
     coins: 150,
     xp: 0,
     level: 1,
@@ -36,7 +36,10 @@ export function loadGame(storage?: Storage): GameState | null {
     const raw = (storage ?? localStorage).getItem(SAVE_KEY);
     if (!raw) return null;
     const s = JSON.parse(raw) as GameState;
-    if (s?.version !== 1 || !Array.isArray(s.buildings) || !Array.isArray(s.bugs)) return null;
+    const v = (s as { version?: number } | null)?.version;
+    if ((v !== 1 && v !== 2) || !Array.isArray(s.buildings) || !Array.isArray(s.bugs)) return null;
+    // 第 1 版存档的任务链已被替换：花园原样保留，任务从头对一遍（已达成的会自动跳过）
+    if (v === 1) return { ...newGame(), ...s, version: 2, quest: { index: 0, base: 0 } };
     return { ...newGame(), ...s };
   } catch {
     return null;
