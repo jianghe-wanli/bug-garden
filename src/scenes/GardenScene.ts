@@ -244,6 +244,12 @@ export class GardenScene extends Phaser.Scene {
       this.movePlacingTo(wx, wy);
       return;
     }
+    // 金币画在最上层：正好点在金币上就收钱，不让旁边害虫放大的判定圈抢走
+    const coin = this.pickCoin(wx, wy);
+    if (coin) {
+      game.collect(coin.uid);
+      return;
+    }
     const pest = this.pickActor(this.pests, wx, wy, 26);
     if (pest != null) {
       const v = this.pests.get(pest);
@@ -291,19 +297,38 @@ export class GardenScene extends Phaser.Scene {
     return best;
   }
 
-  private pickBuilding(wx: number, wy: number): PlacedBuilding | null {
-    const list = [...this.app.game.state.buildings].sort((a, z) => this.depthOf(z) - this.depthOf(a));
-    // 金币画在所有建筑之上，所以先判金币
-    for (const b of list) {
+  private byDepth(): PlacedBuilding[] {
+    return [...this.app.game.state.buildings].sort((a, z) => this.depthOf(z) - this.depthOf(a));
+  }
+
+  /** 金币是圆的，按圆形判定，避免透明的四角抢走后面建筑的点击 */
+  private pickCoin(wx: number, wy: number): PlacedBuilding | null {
+    for (const b of this.byDepth()) {
       const v = this.buildings.get(b.uid);
       if (!v || !b.ready) continue;
-      // 金币是圆的，按圆形判定，避免透明的四角抢走后面建筑的点击
       const c = v.coin.getBounds();
       if (Phaser.Math.Distance.Between(wx, wy, c.centerX, c.centerY) <= Math.max(c.width, c.height) / 2) return b;
     }
+    return null;
+  }
+
+  /** 点是否落在贴图的不透明像素上；贴图四周的透明留白不算 */
+  private hitsImage(img: Phaser.GameObjects.Image, wx: number, wy: number): boolean {
+    const r = img.getBounds();
+    if (!r.contains(wx, wy)) return false;
+    const fx = Math.floor(((wx - r.x) / r.width) * img.frame.width);
+    const fy = Math.floor(((wy - r.y) / r.height) * img.frame.height);
+    const alpha = this.textures.getPixelAlpha(fx, fy, img.texture.key);
+    return alpha == null || alpha > 16;
+  }
+
+  private pickBuilding(wx: number, wy: number): PlacedBuilding | null {
+    const list = this.byDepth();
+    const coin = this.pickCoin(wx, wy);
+    if (coin) return coin;
     for (const b of list) {
       const v = this.buildings.get(b.uid);
-      if (v && v.img.getBounds().contains(wx, wy)) return b;
+      if (v && this.hitsImage(v.img, wx, wy)) return b;
     }
     const g = worldToGrid(wx, wy);
     const tx = Math.round(g.x);
